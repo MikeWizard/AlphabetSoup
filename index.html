@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="us">
+<head>
+	<meta charset="utf-8">
+	<title>jQuery UI Example Page</title>
+	<link href="jquery-ui.css" rel="stylesheet">
+	<style>
+	body{
+		font-family: "Trebuchet MS", sans-serif;
+		margin: 50px;
+	}
+	.demoHeaders {
+		margin-top: 0em;
+	}
+	.ui-selectmenu-button.ui-button {
+		width: 400px;
+	}
+	#muestra td{
+		width: 20px;
+		border:1px blue solid;
+	}
+	h2{
+		margin-top: 10px;
+	}
+	#error{
+		display: none;
+	}
+	</style>
+</head>
+<body>
+
+<h1>Benvenido al test!</h1>
+<div style="float: left;width: 50%">
+
+<h2 class="demoHeaders">Método</h2>
+<select id="metodo" class="selectmenu">
+	<option value="RecursiveWithLimiter" selected="selected">Recursiva con límite</option>
+	<option value="HalfRecursive">Recursiva Parcial</option>
+	<option value="Standard">Standard</option>
+</select>
+<h2 class="demoHeaders">Matrices de sugerencia</h2>
+<select id="matriz" class="selectmenu">
+	<option value="OIEIIXEXE" data-letters="OIEIIXEXE" data-width="3" data-height="3">OIEIIXEXE(3,3)</option>
+	<option value="EIOIEIOEIO" data-letters="EIOIEIOEIO" data-width="10" data-height="1">EIOIEIOEIO(1,10)</option>
+	<option value="EAEAEAIIIAEIOIEAIIIAEAEAE" data-letters="EAEAEAIIIAEIOIEAIIIAEAEAE" data-width="5" data-height="5">EAEAEAIIIAEIOIEAIIIAEAEAE(5,5)</option>
+	<option value="OXIOEXIIOXIEEX" data-letters="OXIOEXIIOXIEEX" data-width="2" data-height="7">OXIOEXIIOXIEEX(7,2)</option>
+</select>
+<h2 class="demoHeaders">Matriz</h2>
+Letras <input type="text" id="letters" value="" /><br/><br/>
+Alto <input type="text" id="height" value=""  /><br/><br/>
+Ancho <input type="text" id="width" value="" /><br/><br/>
+<button id="verificar">Verificar</button>
+
+<!-- <h2 class="demoHeaders">Medidas</h2> -->
+<h2 class="demoHeaders">Vista Previa</h2>
+<div id="container"></div>
+<div class="ui-widget" id="error">
+	<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;">
+		<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span>
+		<strong>Error:</strong> Esta matriz es inválida</p>
+	</div>
+</div>
+
+<h2 class="demoHeaders">Búsqueda</h2>
+Palabra <input type="text" id="word" value="OIE" /><br/><br/>
+<button id="resolver">Resolver</button>
+<!-- Highlight / Error -->
+</div>
+<div style="float: left;width: 50%">
+<h3>Resultados</h3>
+<div id="resultado"></div>
+</div>
+<script src="jquery.js"></script>
+<script src="jquery-ui.js"></script>
+<script>
+$( document ).ready(function() {
+	$( ".selectmenu" ).selectmenu();
+	$('#matriz').on('selectmenuchange', function() {
+		var selected = $(this).find('option:selected');
+		$('#width').val(selected.data('width'));
+		$('#height').val(selected.data('height'));
+		$('#letters').val(selected.data('letters'));
+		showMatrix(selected.val(),selected.data('width'),selected.data('height'));
+	});
+	$( "button" ).button();
+	$( "#verificar" ).on('click',function(){
+		showMatrix($("#letters").val(),$("#width").val(),$("#height").val());
+	});
+	$( "#resolver" ).on('click',function(){
+		// $.post('sopa.php', { field1: "hello", field2 : "hello2"});
+		 $("#resultado").append("Buscando '"+$('#word').val()+"' en '"+$('#letters').val()+"'["+$('#width').val()+"]["+$('#height').val()+"] utilizando "+$('#metodo').val());
+		$.ajax({
+	        url : "Soup.php",
+	        type: "GET",
+	         data: { letters: $('#letters').val()/*$('#matriz').find('option:selected').val()*/, width: $('#width').val(),height: $('#height').val(),word:$('#word').val() , strategy: $('#metodo').val()},
+	        dataType: "JSON",
+	        success: function(data)
+	        {	
+	        	if(data.found){
+		            $("#resultado").append("<p>Se encontraron "+data.found+ " resultados</p>");
+	        	}else{
+		            $("#resultado").append("<p>Se encontró el siguiente error:<br>"+data.error+"</p>");
+	        	}
+	        },
+	        error: function (jqXHR, textStatus, errorThrown)
+	        {
+		            $("#resultado").append("<p>Se encontró el siguiente error:<br>"+errorThrown+"</p>");
+	        }
+
+	    });
+	});
+	$("#matriz").trigger("selectmenuchange");
+
+});
+function generateMatrix(id,letters,width,height){
+	table=false;
+	if(letters.length==width*height){
+		table = document.createElement("table");
+		table.setAttribute("id",id);
+      	row = table.insertRow();
+      	count=0;
+		for (var i of letters) {
+			var cell = row.insertCell();
+		    cell.innerHTML = i;
+		    count++;
+		    if (count%width==0) {
+		      row = table.insertRow();
+		    }
+		}
+	}
+	return table;
+}
+function showMatrix(letters,width,height){
+	 table=generateMatrix("muestra",letters,width,height);
+	if(table){
+		$("#error").hide();
+		$("#container").show();
+		$("#container").html("");
+		$("#container").append(table);;
+	}else{
+		$("#container").hide();
+		$("#error").show();
+	}
+}
+</script>
+</body>
+</html>
