@@ -96,7 +96,7 @@ $( document ).ready(function() {
 	        dataType: "JSON",
 	        success: function(data)
 	        {	
-	        	if(data.found){
+	        	if(Number.isInteger(data.found)){
 		            $("#resultado").append("<p>Se encontraron "+data.found+ " resultados</p>");
 	        	}else{
 		            $("#resultado").append("<p>Se encontró el siguiente error:<br>"+data.error+"</p>");
