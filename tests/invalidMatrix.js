@@ -13,6 +13,6 @@ const puppeteer = require('puppeteer');
   await input.type("1");
   //Click on the submit button
   await page.click('#verificar');  
-  await page.screenshot({ path: 'tests/5x5matrix.png', fullPage: true });
+  await page.screenshot({ path: 'tests/invalidMatrix.png', fullPage: true });
   await browser.close();
 })();
